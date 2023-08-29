@@ -27,6 +27,12 @@ def get_parser():
   return parser
   
 def process_bam2bed(input_bam, out_dir, core_num, sample_name, qual):
+    print(f" \
+        The input bam file is:\t {input_bam};\n \
+        The output folder is: {out_dir};\n \
+        The sample folder is: {sample_name};\n \
+        The alignment quality threshold is {qual}; \n \
+        The CPUs called for the jobs is {core_num}; \n")
     #make output sample folder in the output directory 
     out_folder = out_dir + '/' + sample_name
     isExist = os.path.exists(out_folder)
@@ -103,6 +109,8 @@ def process_bam2bed(input_bam, out_dir, core_num, sample_name, qual):
 
 def remove_blacklist(tn5_bed,out_dir,black_list_fl,ref_fl): 
     '''remove black list regions'''
+    print(f'The blacklist file is:\t {black_list_fl};\n\
+            The reference index file is:\t {ref_fl}')
     ##############################################
     ##    intersect with the bed files
     ##############################################
@@ -165,14 +173,6 @@ if __name__=='__main__':
     print('Error with input arguments, please check.')
     print(get_parser().print_help())
     exit()
-  print(" \
-        The input bam file is:\t %s;\n \
-        The sample folder is: %s;\n \
-        The output folder is: %s;\n \
-        The alignment quality threshold is %s; \n \
-        The CPUs called for the jobs is %s; \n \
-        The reference index file is %s\n \
-        The blacklist file is %s" % (bam_file, sample_name, output_dir, quality, cpu_nm, ref, black_list))
 
 ## run the analysis
   tn5_bed = process_bam2bed(bam_file,output_dir,cpu_nm,sample_name,quality)
