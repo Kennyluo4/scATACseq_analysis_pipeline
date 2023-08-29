@@ -11,17 +11,18 @@ import sys
 import subprocess
 import os
 import argparse
+import multiprocessing
   
 def get_parser():
   ''' read the arguments'''
   parser = argparse.ArgumentParser(description='This script processes raw mapping bam file (e.g. from Cellranger), and make Tn5 insertion bed file.\n \
                                                 ... make sure picard and SAMtools are loaded.\n \
                                                 ... make sure the makeTn5bed.py and FixingBarcodeName.py are in the same folder')
-  parser.add_argument('-b', '--bam', help=' the input bam file', dest='bam')
-  parser.add_argument('-s', '--sample', help=' the sanmple name', dest='sample')
-  parser.add_argument('-o', '--out', help=' the output directory', dest='out')
+  parser.add_argument('-b', '--bam', help=' the input bam file', dest='bam',required=True)
+  parser.add_argument('-s', '--sample', help=' the sanmple name', dest='sample',required=True)
+  parser.add_argument('-o', '--out', help=' the output directory', dest='out',required=True)
   parser.add_argument('-x', '--cpu', help=' the number of cores used', dest='cpu')
-  parser.add_argument('-r', '--ref', help=' the reference index file', dest='ref')
+  parser.add_argument('-r', '--ref', help=' the reference index file', dest='ref',required=True)
   parser.add_argument('-l', '--bklst', help=' the bed file of blacklist regions in the genome', dest='bklst')
   return parser
   
@@ -153,7 +154,11 @@ if __name__=='__main__':
       print("output dir '%s' exists, will overwrite files\n" % output_dir)
     else:
       os.makedirs(output_dir)
-    cpu_nm = argvs.cpu
+    # use all available cpu if not specified
+    if argvs.cpu == None:
+      cpu_nm = multiprocessing.cpu_count()
+    else:
+      cpu_nm = argvs.cpu
     ref = argvs.ref
     black_list = argvs.bklst  
   except AttributeError:
@@ -171,4 +176,7 @@ if __name__=='__main__':
 
 ## run the analysis
   tn5_bed = process_bam2bed(bam_file,output_dir,cpu_nm,sample_name,quality)
-  remove_blacklist(tn5_bed,output_dir,black_list,ref)
+  if black_list == None:
+    print('\nSkip blacklist: no file provided')
+  else:
+    remove_blacklist(tn5_bed,output_dir,black_list,ref)
