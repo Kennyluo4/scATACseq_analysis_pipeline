@@ -26,12 +26,12 @@ def get_parser():
   parser.add_argument('-l', '--bklst', help=' the bed file of blacklist regions in the genome', dest='bklst')
   return parser
   
-def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
+def process_bam2bed(input_bam, out_dir, core_num, sample_name, qual):
     #make output sample folder in the output directory 
-    output_dir = output_dir + '/' + sample_name
-    isExist = os.path.exists(output_dir)
+    out_folder = out_dir + '/' + sample_name
+    isExist = os.path.exists(out_folder)
     if not isExist:
-      os.mkdir(output_dir)
+      os.mkdir(out_folder)
 
     ##############################################
     ## retain only mapped reads (q>1) and sort
@@ -39,7 +39,7 @@ def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
     cmd = 'samtools view -@ ' + str(core_num) + ' -bhq 1 ' + input_bam + ' | ' + \
           'samtools' + ' sort' + \
           ' -@ ' + str(core_num) + \
-          ' -o ' + output_dir + '/temp_mapped_sorted.bam'
+          ' -o ' + out_folder + '/temp_mapped_sorted.bam'
     print('run:\n %s' % cmd)
     subprocess.call(cmd, shell=True)
     print('samtools filtering mapped reads and sorting finished\n')
@@ -51,9 +51,9 @@ def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
           ' MarkDuplicates' + \
           ' MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000' + \
           ' REMOVE_DUPLICATES=true' + \
-          ' I=' + output_dir + '/temp_mapped_sorted.bam' + \
-          ' O=' + output_dir + '/temp_mapped_rmpcr.bam'+ \
-          ' METRICS_FILE=' + output_dir + '/dups.txt' + \
+          ' I=' + out_folder + '/temp_mapped_sorted.bam' + \
+          ' O=' + out_folder + '/temp_mapped_rmpcr.bam'+ \
+          ' METRICS_FILE=' + out_folder + '/dups.txt' + \
           ' BARCODE_TAG=CB' + \
           ' ASSUME_SORT_ORDER=coordinate' + \
           ' USE_JDK_DEFLATER=true' + \
@@ -65,7 +65,7 @@ def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
     ##############################################
     ##  filter bam MQ > qual and properly paired
     ##############################################
-    cmd = 'samtools view -@ ' + str(core_num) + ' -f 3 -bhq ' + qual + ' ' + output_dir + '/temp_mapped_rmpcr.bam > ' + output_dir + '/temp_mq' + qual + '_rmpcr.bam'
+    cmd = 'samtools view -@ ' + str(core_num) + ' -f 3 -bhq ' + qual + ' ' + out_folder + '/temp_mapped_rmpcr.bam > ' + out_folder + '/temp_mq' + qual + '_rmpcr.bam'
     print('run:\n %s' % cmd)
     subprocess.call(cmd, shell=True)
     print('Samtools filtering finished\n')
@@ -74,8 +74,8 @@ def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
     ##############################################
     ###   add sample name to CB barcode
     ##############################################
-    cmd = 'python /home/zl57208/analysis_scripts/FixingBarcodeName.py -BAM ' + output_dir + '/temp_mq' + qual + '_rmpcr.bam' + ' -exp_name ' + sample_name + ' | ' \
-          'samtools view -@ ' + str(core_num) + ' -h - > ' + output_dir + '/temp_fixBC_mq' + qual + '_rmpcr.sam'
+    cmd = 'python /home/zl57208/analysis_scripts/FixingBarcodeName.py -BAM ' + out_folder + '/temp_mq' + qual + '_rmpcr.bam' + ' -exp_name ' + sample_name + ' | ' \
+          'samtools view -@ ' + str(core_num) + ' -h - > ' + out_folder + '/temp_fixBC_mq' + qual + '_rmpcr.sam'
     print('run:\n %s' % cmd)
     subprocess.call(cmd, shell=True)
     print('FixingBarcodeName.py barcode filtering finished\n')
@@ -83,10 +83,10 @@ def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
     ##############################################
     ##    make Tn5 bed files
     ##############################################
-    out_bed = output_dir + '/' + sample_name + 'tn5_mq' + qual + '_processed.bed'
-    # cmd = 'perl makeTn5bed.pl ' + output_dir + '/temp_fixBC_mq' + qual + '_rmpcr.bam | sort -k1,1 -k2,2n - | uniq - > ' + out_bed
+    out_bed = out_folder + '/' + sample_name + 'tn5_mq' + qual + '_processed.bed'
+    # cmd = 'perl makeTn5bed.pl ' + out_folder + '/temp_fixBC_mq' + qual + '_rmpcr.bam | sort -k1,1 -k2,2n - | uniq - > ' + out_bed
     # alternative: use python script to generate the bed file:
-    cmd = 'python /home/zl57208/analysis_scripts/makeTn5bed.py -sam' + output_dir + '/temp_fixBC_mq' + qual + '_rmpcr.sam' + ' -output_file ' + out_bed
+    cmd = 'python /home/zl57208/analysis_scripts/makeTn5bed.py -sam' + out_folder + '/temp_fixBC_mq' + qual + '_rmpcr.sam' + ' -output_file ' + out_bed
     # makeTn5bed.py <sam_file> <output_directory>
     print('run:\n %s' % cmd)
     subprocess.call(cmd, shell=True)
@@ -101,20 +101,20 @@ def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
     subprocess.call(cmd, shell=True)
     return out_bed      
 
-def remove_blacklist(tn5_bed,output_dir,black_list_fl,ref_fl): 
+def remove_blacklist(tn5_bed,out_dir,black_list_fl,ref_fl): 
     '''remove black list regions'''
     ##############################################
     ##    intersect with the bed files
     ##############################################
     cmd = 'bedtools intersect -a ' + tn5_bed + ' -b ' + black_list_fl + \
-            ' -wa -wb -sorted -g ' + ref_fl + ' > ' + output_dir + '/temp_intersect.txt'
+            ' -wa -wb -sorted -g ' + ref_fl + ' > ' + out_dir + '/temp_intersect.txt'
     print('run:\n %s \n' % cmd)
     subprocess.call(cmd,shell=True)
     print("Finished bedtools intersect, start to write filtered bed file.\n")
     
     store_black_region_dic = {}
     print('intersect regions:')
-    with open (output_dir + '/temp_intersect.txt','r') as handle:
+    with open (out_dir + '/temp_intersect.txt','r') as handle:
         for line in handle:
             col = line.strip().split()
             black_loc = col[0] + '_' + col[1] + '_' + col[2] + '_' + col[3] + '_' + col[4]
@@ -172,7 +172,7 @@ if __name__=='__main__':
         The alignment quality threshold is %s; \n \
         The CPUs called for the jobs is %s; \n \
         The reference index file is %s\n \
-        The blacklist file is %s." % (bam_file, sample_name, output_dir, quality, cpu_nm, ref, black_list))
+        The blacklist file is %s" % (bam_file, sample_name, output_dir, quality, cpu_nm, ref, black_list))
 
 ## run the analysis
   tn5_bed = process_bam2bed(bam_file,output_dir,cpu_nm,sample_name,quality)
