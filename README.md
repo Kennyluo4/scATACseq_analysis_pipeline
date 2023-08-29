@@ -1,9 +1,10 @@
 # **scATACseq_analysis_pipeline**
-This is a pipeline for analyzing single cell ATACseq.
+Ziliang Luo
 
-The analysis takes the bam files from Cellranger, the mapped reads are quality filtered, duplicate removed, and barcode fixed. 
 
-After that, MACS2 is used to call peaks and the blacklist (a bed file showing the known repeat regions) is removed from the called accessible chromatin regions (ACRs).
+This is a pipeline for analyzing single cell ATACseq data.
+
+It takes the mapping bam files (e.g. from Cellranger), filters the low quality reads by SAMtools, removes PCR duplicates by Picard, modifies the `CB` barcode, and makes Tn5 insertion bed files. 
 
 ## Prerequisite
 Make sure the these software (samtools, picard, bedtools, and macs2) are installed/loaded in the PATH.
@@ -18,8 +19,10 @@ module load MACS2
 
 ## Proccess the bam files 
 ```
-python bam2bed_scatac_8.23.23.py <bam_dir> <sample_name> <output_dir> <cpu#> <ref_index> <black_list>
+python bam2bed_scatac_8.23.23.py -b <bam_dir> -s <sample_name> -o <output_dir> -x <cpu#> -f <ref_index> -l <black_list>
 ```
+This step calls `FixingBarcodeName.py` and `makeTn5bed.py` for the ananlysis, make sure their path is correct. 
+
 
 `<bam_dir>`: directory of the input bam file.
 
