@@ -3,13 +3,13 @@
     change: make the output directory if it doesn't exist.
             merge remove blacklist step
   '''
-## this script is to process bam files from the cell ranger output
+
 import sys
 import subprocess
 import os
 
 def help():
-  print("Use: python processbam_fromcellranger_033023.py <cellranger_dir> <sample_name> <output_dir> <cpu#> <ref_index> <black_list>")
+  print("Use: python bam2bed_scatac_8.23.23.py <bam_dir> <sample_name> <output_dir> <cpu#> <ref_index> <black_list>")
   " ... make sure the following scripts are the same folder: makeTn5bed.pl; fixBC.pl"
   " ... make sure picard and SAMtools are loaded"
 
