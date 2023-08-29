@@ -141,19 +141,25 @@ def remove_blacklist(tn5_bed,output_dir,black_list_fl,ref_fl):
 if __name__=='__main__':  
 ## read argvs
   argvs = get_parser().parse_args()
-  quality = '10'         ## change this based on your data/species
-  bam_file = argvs.bam.rstrip('/')  
-  sample_name = argvs.sample
-  output_dir = argvs.out.rstrip('/')
-  # check if output directory exists
-  isExist = os.path.exists(output_dir)
-  if isExist:
-    print("output dir '%s' exists, will overwrite files\n" % output_dir)
-  else:
-    os.makedirs(output_dir)
-  cpu_nm = argvs.cpu
-  ref = argvs.ref
-  black_list = argvs.bklst  
+  # print(argvs)
+  try:
+    quality = '10'         ## change this based on your data/species
+    bam_file = argvs.bam.rstrip('/')  
+    sample_name = argvs.sample
+    output_dir = argvs.out.rstrip('/')
+    # check if output directory exists
+    isExist = os.path.exists(output_dir)
+    if isExist:
+      print("output dir '%s' exists, will overwrite files\n" % output_dir)
+    else:
+      os.makedirs(output_dir)
+    cpu_nm = argvs.cpu
+    ref = argvs.ref
+    black_list = argvs.bklst  
+  except AttributeError:
+    print('Error with input arguments, please check.')
+    print(get_parser().print_help())
+    exit()
   print(" \
         The input bam file is:\t %s;\n \
         The sample folder is: %s;\n \
