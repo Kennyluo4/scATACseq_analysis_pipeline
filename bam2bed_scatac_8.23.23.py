@@ -73,7 +73,7 @@ def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
     ##############################################
     ###   add sample name to CB barcode
     ##############################################
-    cmd = 'python FixingBarcodeName.py -BAM ' + output_dir + '/temp_mq' + qual + '_rmpcr.bam' + ' -exp_name ' + sample_name + ' | ' \
+    cmd = 'python /home/zl57208/analysis_scripts/FixingBarcodeName.py -BAM ' + output_dir + '/temp_mq' + qual + '_rmpcr.bam' + ' -exp_name ' + sample_name + ' | ' \
           'samtools view -@ ' + str(core_num) + ' -h - > ' + output_dir + '/temp_fixBC_mq' + qual + '_rmpcr.sam'
     print('run:\n %s' % cmd)
     subprocess.call(cmd, shell=True)
@@ -85,7 +85,7 @@ def process_bam2bed(input_bam, output_dir, core_num, sample_name, qual):
     out_bed = output_dir + '/' + sample_name + 'tn5_mq' + qual + '_processed.bed'
     # cmd = 'perl makeTn5bed.pl ' + output_dir + '/temp_fixBC_mq' + qual + '_rmpcr.bam | sort -k1,1 -k2,2n - | uniq - > ' + out_bed
     # alternative: use python script to generate the bed file:
-    cmd = 'python makeTn5bed.py -sam' + output_dir + '/temp_fixBC_mq' + qual + '_rmpcr.sam' + ' -output_file ' + out_bed
+    cmd = 'python /home/zl57208/analysis_scripts/makeTn5bed.py -sam' + output_dir + '/temp_fixBC_mq' + qual + '_rmpcr.sam' + ' -output_file ' + out_bed
     # makeTn5bed.py <sam_file> <output_directory>
     print('run:\n %s' % cmd)
     subprocess.call(cmd, shell=True)
