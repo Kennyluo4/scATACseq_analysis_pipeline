@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 ''' 
 This script is to process bam files from the cell ranger output
-    edited by Ziliang 2023.03 
-        change: make the output directory if it doesn't exist;
+    edited by Ziliang 2023.08 
+        change: add argparse module;
+                switch to python scripts for fixing barcode and make tn5 bed file;
+                make the output directory if it doesn't exist;
                 merge samtools processing steps; 
                 merge remove blacklist step.
   '''
