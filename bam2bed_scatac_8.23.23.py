@@ -77,11 +77,11 @@ def process_bam2bed(input_bam, out_dir, core_num, sample_name, qual):
     print('run:\n %s' % cmd)
     subprocess.call(cmd, shell=True)
     print('Samtools filtering finished\n')
+    
     ##############################################
     ##    Fix barcodes
     ##############################################
     ###   add sample name to CB barcode
-    ##############################################
     cmd = 'python /home/zl57208/analysis_scripts/FixingBarcodeName.py -BAM ' + out_folder + '/temp_mq' + qual + '_rmpcr.bam' + ' -exp_name ' + sample_name + ' | ' \
           'samtools view -@ ' + str(core_num) + ' -h - > ' + out_folder + '/temp_fixBC_mq' + qual + '_rmpcr.sam'
     print('run:\n %s' % cmd)
@@ -104,7 +104,7 @@ def process_bam2bed(input_bam, out_dir, core_num, sample_name, qual):
     ##############################################
     ##remove temporary files
     ##############################################
-    cmd = 'rm temp*'
+    cmd = 'rm ' + out_folder + '/temp*'
     print('...deleting temporary files')
     subprocess.call(cmd, shell=True)
     return out_bed      
